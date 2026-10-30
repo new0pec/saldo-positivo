@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saldo Positivo</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #3b82f6;
+    --positive: #10b981;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2.5rem 1rem;
+    line-height: 1.5;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 2.5rem; }
+  h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.6rem;
+  }
+  .subtitle { color: var(--muted); font-size: 1.1rem; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 1.6rem 1.5rem;
+    border: 1px solid #334155;
+  }
+  .card h3 {
+    font-size: 1.3rem;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+    font-weight: 500;
+  }
+  .amount {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--positive);
+  }
+  .total-card {
+    background: linear-gradient(135deg, #1e3a5f, #1e293b);
+    border: 1px solid var(--accent);
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2.2rem 1.5rem;
+  }
+  .total-card h3 {
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+  }
+  .total-card .amount {
+    font-size: 3.2rem;
+  }
+  .error { color: #f87171; text-align: center; margin: 1rem 0; }
+  .updated {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Saldo Positivo</h1>
+    </header>
+    <div class="error" id="error" style="display:none;"></div>
+    <div class="grid" id="cards"></div>
+    <div class="updated" id="updated">A carregar...</div>
+  </div>
+
+<script>
+const SHEET_ID = '1nqvVNdSYHQEpzb5-oUGeUYonAopcTz9SykvjLPUVy3I';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0`;
+
+function formatEuro(value) {
+  return '€' + Number(value).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+async function loadData() {
+  const errorEl = document.getElementById('error');
+  const cardsEl = document.getElementById('cards');
+  const updatedEl = document.getElementById('updated');
+  try {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error('Não foi possível aceder à folha. Certifica-te que está partilhada como "Qualquer pessoa com o link pode ver".');
+    const text = await res.text();
+    const lines = text.trim().split('\n').slice(1).filter(l => l.trim());
+    
+    const items = [];
+    for (const line of lines) {
+      const cleaned = line.replace(/"/g, '');
+      const parts = cleaned.split(',');
+      if (parts.length < 2) continue;
+      const conta = parts[0].trim();
+      if (!conta || conta.toLowerCase() === 'contas') continue;
+      let saldoStr = parts.slice(1).join(',').trim();
+      saldoStr = saldoStr.replace(/[\s\u00A0€]/g, '').replace(/[^\d,.-]/g, '');
+      if (saldoStr.includes(',')) {
+        saldoStr = saldoStr.replace(/\./g, '').replace(',', '.');
+      }
+      const saldo = parseFloat(saldoStr);
+      if (!isNaN(saldo)) {
+        items.push({ conta, saldo });
+      }
+    }
+
+    const others = items.filter(i => i.conta.toLowerCase() !== 'total');
+    const totalSum = others.reduce((sum, i) => sum + i.saldo, 0);
+    const total = { conta: 'Total', saldo: totalSum };
+
+    cardsEl.innerHTML = others.map(i => `
+      <div class="card">
+        <h3>${i.conta}</h3>
+        <div class="amount">${formatEuro(i.saldo)}</div>
+      </div>
+    `).join('');
+
+    if (total) {
+      cardsEl.innerHTML += `
+        <div class="card total-card">
+          <h3>Total Saldo Positivo</h3>
+          <div class="amount">${formatEuro(total.saldo)}</div>
+        </div>
+      `;
+    }
+
+    const now = new Date();
+    updatedEl.textContent = 'Informação Obtida em ' + now.toLocaleString('pt-PT', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    errorEl.style.display = 'none';
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.style.display = 'block';
+    updatedEl.textContent = 'Erro ao atualizar dados';
+  }
+}
+
+loadData();
+setInterval(loadData, 60000);
+</script>
+</body>
+</html>
