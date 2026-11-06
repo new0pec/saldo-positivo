@@ -10,6 +10,8 @@
     --card: #1e293b;
     --accent: #3b82f6;
     --positive: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
     --text: #f1f5f9;
     --muted: #94a3b8;
   }
@@ -46,6 +48,12 @@
     border: 1px solid #334155;
     border-bottom: 3px solid var(--positive);
   }
+  .card.warning {
+    border-bottom-color: var(--warning);
+  }
+  .card.danger {
+    border-bottom-color: var(--danger);
+  }
   .card h3 {
     font-size: 1.2rem;
     color: var(--muted);
@@ -64,6 +72,12 @@
     grid-column: 1 / -1;
     text-align: center;
     padding: 1.5rem 1.2rem;
+  }
+  .total-card.warning {
+    border-bottom-color: var(--warning);
+  }
+  .total-card.danger {
+    border-bottom-color: var(--danger);
   }
   .total-card h3 {
     font-size: 1rem;
@@ -100,6 +114,12 @@ function formatEuro(value) {
   return '€' + Number(value).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function getStatusClass(value) {
+  if (value < 100) return 'danger';
+  if (value < 500) return 'warning';
+  return '';
+}
+
 async function loadData() {
   const errorEl = document.getElementById('error');
   const cardsEl = document.getElementById('cards');
@@ -132,16 +152,20 @@ async function loadData() {
     const totalSum = others.reduce((sum, i) => sum + i.saldo, 0);
     const total = { conta: 'Total', saldo: totalSum };
 
-    cardsEl.innerHTML = others.map(i => `
-      <div class="card">
-        <h3>${i.conta}</h3>
-        <div class="amount">${formatEuro(i.saldo)}</div>
-      </div>
-    `).join('');
+    cardsEl.innerHTML = others.map(i => {
+      const status = getStatusClass(i.saldo);
+      return `
+        <div class="card ${status}">
+          <h3>${i.conta}</h3>
+          <div class="amount">${formatEuro(i.saldo)}</div>
+        </div>
+      `;
+    }).join('');
 
     if (total) {
+      const status = getStatusClass(total.saldo);
       cardsEl.innerHTML += `
-        <div class="card total-card">
+        <div class="card total-card ${status}">
           <h3>Total Saldo Positivo</h3>
           <div class="amount">${formatEuro(total.saldo)}</div>
         </div>
