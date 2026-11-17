@@ -1,6 +1,6 @@
 # Saldo Positivo
 
-Dashboard de saldos que lê uma Google Sheet e se atualiza a cada minuto, com o visual do iOS 27 (Liquid Glass).
+Dashboard iOS 27 (Liquid Glass).
 
 ## Funcionalidades
 - **Total disponível** em cartão de vidro, com estado (Saudável / Atenção / Baixo) e barras de evolução diária dos últimos 14 dias (verde se subiu, vermelho se desceu).
