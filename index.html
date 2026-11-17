@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#0b1022">
 <title>Saldo Positivo</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
@@ -26,52 +26,58 @@
   /* ───────── Tokens (cores do sistema iOS, versão de contraste reforçado) ───────── */
   :root, [data-theme="dark"] {
     color-scheme: dark;
-    --bg: #000000;
-    --card: #1c1c1e;
+    --bg: #0b1022;
+    --card: rgba(22, 24, 34, 0.62);
     --label: #ffffff;
     --label-2: rgba(235, 235, 245, 0.74);
     --sep: rgba(84, 84, 88, 0.65);
     --fill: rgba(120, 120, 128, 0.26);
     --green: #30d158;
     --green-tab: #30d158;
+    --green-text: #30d158;
+    --red-text: #ffa49e;
     --orange: #ffb340;
     --red: #ff6961;
-    --glass: rgba(44, 44, 48, 0.58);
+    --glass: rgba(16, 20, 36, 0.62);
     --glass-strong: rgba(30, 30, 33, 0.74);
     --glass-solid: rgba(28, 28, 30, 0.96);
     --glass-border: rgba(255, 255, 255, 0.16);
     --glass-hi: rgba(255, 255, 255, 0.26);
     --shadow: rgba(0, 0, 0, 0.45);
     --tile-text: #000000;
-    --brand-1: #12a37a;
-    --brand-2: #2f4fd1;
-    --brand-3: #c2416f;
-    --brand-opacity: 0.55;
+    --field-1: #12a37a;
+    --field-2: #2f4fd1;
+    --field-3: #c2416f;
+    --field-4: #d98a1f;
+    --field-opacity: 0.85;
     --s1: #5ee8b5; --s2: #8fb2ff; --s3: #ffc65c; --s4: #ff9cc2; --s5: #c3adff; --s6: #6fe0f0;
   }
   [data-theme="light"] {
     color-scheme: light;
-    --bg: #f2f2f7;
-    --card: #ffffff;
+    --bg: #eef1f8;
+    --card: rgba(255, 255, 255, 0.72);
     --label: #000000;
     --label-2: rgba(60, 60, 67, 0.8);
     --sep: rgba(60, 60, 67, 0.29);
     --fill: rgba(120, 120, 128, 0.14);
     --green: #1e7b34; /* verde iOS escurecido para AA sobre branco */
     --green-tab: #17662a;
+    --green-text: #17662a;
+    --red-text: #c00013;
     --orange: #c93400;
     --red: #d70015;
-    --glass: rgba(255, 255, 255, 0.62);
+    --glass: rgba(255, 255, 255, 0.74);
     --glass-strong: rgba(255, 255, 255, 0.86);
     --glass-solid: rgba(255, 255, 255, 0.97);
     --glass-border: rgba(255, 255, 255, 0.9);
     --glass-hi: rgba(255, 255, 255, 1);
     --shadow: rgba(30, 30, 60, 0.16);
     --tile-text: #ffffff;
-    --brand-1: #6fdcb4;
-    --brand-2: #93abff;
-    --brand-3: #ff9ec0;
-    --brand-opacity: 0.6;
+    --field-1: #6fdcb4;
+    --field-2: #93abff;
+    --field-3: #ff9ec0;
+    --field-4: #ffc978;
+    --field-opacity: 0.9;
     --s1: #057a58; --s2: #2f5bd8; --s3: #9a5c00; --s4: #c43a76; --s5: #7650d6; --s6: #08788b;
   }
   :root {
@@ -86,7 +92,6 @@
   body {
     font-family: var(--font);
     color: var(--label);
-    background: var(--bg);
     min-height: 100vh;
     min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
@@ -97,17 +102,18 @@
   }
   button { font: inherit; color: inherit; }
 
-  /* Cor da marca por trás do título (desfocada, rola com a página) */
-  .brand {
-    position: absolute; top: 0; left: 0; right: 0; height: 460px;
-    overflow: hidden; z-index: -1; pointer-events: none;
-    -webkit-mask-image: linear-gradient(#000 55%, transparent);
-    mask-image: linear-gradient(#000 55%, transparent);
+  /* Campos de cor animados por trás de tudo (o que o vidro desfoca) */
+  .backdrop { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: var(--bg); pointer-events: none; }
+  .backdrop span {
+    position: absolute; border-radius: 50%;
+    filter: blur(70px); opacity: var(--field-opacity);
+    animation: drift 28s ease-in-out infinite alternate;
   }
-  .brand span { position: absolute; border-radius: 50%; filter: blur(80px); opacity: var(--brand-opacity); }
-  .brand span:nth-child(1) { width: 380px; height: 380px; left: calc(50% - 360px); top: -170px; background: var(--brand-1); }
-  .brand span:nth-child(2) { width: 360px; height: 360px; left: calc(50% + 0px); top: -170px; background: var(--brand-2); }
-  .brand span:nth-child(3) { width: 300px; height: 300px; left: calc(50% - 160px); top: 80px; background: var(--brand-3); }
+  .backdrop span:nth-child(1) { width: 55vmax; height: 55vmax; left: -15vmax; top: -18vmax; background: var(--field-1); }
+  .backdrop span:nth-child(2) { width: 50vmax; height: 50vmax; right: -18vmax; top: -10vmax; background: var(--field-2); animation-duration: 34s; }
+  .backdrop span:nth-child(3) { width: 45vmax; height: 45vmax; left: 20vmax; bottom: -25vmax; background: var(--field-3); animation-duration: 40s; }
+  .backdrop span:nth-child(4) { width: 28vmax; height: 28vmax; right: 5vmax; bottom: 5vmax; background: var(--field-4); opacity: 0.6; animation-duration: 31s; }
+  @keyframes drift { to { transform: translate3d(4vmax, 3vmax, 0) scale(1.08); } }
 
   .app {
     max-width: 720px;
@@ -139,7 +145,12 @@
   .glass-btn:focus-visible, .reveal:focus-visible, .tab:focus-visible { outline: 2px solid var(--label); outline-offset: 2px; }
 
   h1 { font-size: 34px; font-weight: 700; letter-spacing: 0.01em; line-height: 1.2; }
-  .updated { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 13px; color: var(--label-2); }
+  /* Texto secundário assenta sempre em vidro, nunca direto sobre a cor */
+  .updated {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 13px; color: var(--label-2);
+  }
   .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
   .live-dot.stale { background: var(--orange); }
 
@@ -162,14 +173,15 @@
     word-break: break-word;
   }
   .status-line { display: flex; flex-wrap: wrap; align-items: center; gap: 0 5px; font-size: 15px; color: var(--label-2); }
-  .st { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; color: var(--green); }
+  /* Cores de texto de estado: um tom mais forte que o das barras, para ler bem sobre o vidro */
+  .st { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; color: var(--green-text); }
   .st::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
   .st.warning { color: var(--orange); }
-  .st.danger { color: var(--red); }
+  .st.danger { color: var(--red-text); }
   .trend { display: grid; gap: 8px; margin-top: 8px; font-size: 13px; color: var(--label-2); }
   .trend .spark { width: 100%; height: 56px; }
-  .trend .up-txt { color: var(--green); font-weight: 600; }
-  .trend .down-txt { color: var(--red); font-weight: 600; }
+  .trend .up-txt { color: var(--green-text); font-weight: 600; }
+  .trend .down-txt { color: var(--red-text); font-weight: 600; }
 
   /* Botão de revelar (olho) */
   .reveal {
@@ -186,7 +198,7 @@
   h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin: 26px 4px 10px; }
 
   /* Lista agrupada */
-  .list { list-style: none; background: var(--card); border-radius: 26px; overflow: hidden; }
+  .list { list-style: none; background: var(--card); border-radius: 26px; overflow: hidden; -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); border: 0.5px solid var(--glass-border); }
   .row {
     --c: var(--s1);
     position: relative;
@@ -213,7 +225,6 @@
   .row .right { display: grid; justify-items: end; gap: 4px; }
   .row .value { font-family: var(--font-round); font-size: 17px; font-weight: 600; white-space: nowrap; }
   .row .spark { width: 70px; height: 18px; }
-  .empty { padding: 22px 16px; text-align: center; color: var(--label-2); font-size: 15px; }
 
   /* Barras de variação diária */
   .spark .base { stroke: var(--sep); stroke-width: 1; vector-effect: non-scaling-stroke; }
@@ -222,7 +233,7 @@
   .spark rect.flat { fill: var(--label-2); }
 
   /* Distribuição */
-  .dist { background: var(--card); border-radius: 26px; padding: 16px; display: grid; gap: 12px; }
+  .dist { background: var(--card); border-radius: 26px; padding: 16px; display: grid; gap: 12px; -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); border: 0.5px solid var(--glass-border); }
   .stack { display: flex; gap: 3px; height: 10px; border-radius: 6px; overflow: hidden; background: var(--fill); }
   .stack i { display: block; height: 100%; min-width: 3px; }
   .legend { list-style: none; display: grid; gap: 10px; }
@@ -232,11 +243,12 @@
   .legend .val { color: var(--label-2); }
 
   /* Aviso de erro */
-  .notice { display: none; margin-top: 14px; padding: 14px 16px; border-radius: 22px; background: var(--card); font-size: 15px; }
+  .notice { display: none; margin-top: 14px; padding: 14px 16px; border-radius: 22px; background: var(--glass-solid); font-size: 15px; }
   .notice strong { color: var(--red); }
   .notice.show { display: block; }
 
-  .foot { margin-top: 22px; text-align: center; font-size: 13px; color: var(--label-2); }
+  .foot { margin-top: 22px; text-align: center; }
+  .foot span { display: inline-block; padding: 6px 14px; border-radius: 999px; font-size: 13px; color: var(--label-2); }
 
   /* Carregamento */
   .skeleton {
@@ -249,8 +261,8 @@
   /* ───────── Barra de separadores flutuante ───────── */
   .edge {
     position: fixed; left: 0; right: 0; bottom: 0; height: 140px; pointer-events: none; z-index: 5;
-    background: linear-gradient(to bottom, transparent, var(--bg) 88%);
-    opacity: 0.9;
+    background: linear-gradient(to bottom, transparent, var(--bg) 92%);
+    opacity: 0.7;
   }
   .tabbar {
     position: fixed; z-index: 10;
@@ -258,7 +270,7 @@
     bottom: calc(env(safe-area-inset-bottom) + 12px);
     max-width: 720px; margin: 0 auto;
     padding: 0 max(var(--side), env(safe-area-inset-right)) 0 max(var(--side), env(safe-area-inset-left));
-    display: flex; gap: 12px; align-items: center;
+    display: flex; gap: 12px; align-items: center; justify-content: center;
     pointer-events: none;
   }
   .tabbar > * { pointer-events: auto; }
@@ -273,39 +285,23 @@
   }
   .tab svg { width: 24px; height: 24px; }
   .tab[aria-current="true"] { background: var(--fill); color: var(--green-tab); font-weight: 600; }
-  .search-btn { width: var(--tab-h); height: var(--tab-h); border-radius: 31px; margin-left: auto; flex-shrink: 0; background: var(--glass-strong); }
-  .search-btn svg { width: 22px; height: 22px; }
-  .search-field {
-    display: none; flex: 1; min-width: 0; height: var(--tab-h); border-radius: 31px; padding: 0 18px;
-    align-items: center; gap: 10px; background: var(--glass-strong);
-  }
-  .search-field svg { width: 20px; height: 20px; color: var(--label-2); flex-shrink: 0; }
-  .search-field input {
-    flex: 1; min-width: 0; width: 100%; border: 0; outline: 0; background: transparent;
-    font: inherit; font-size: 17px; color: var(--label);
-  }
-  .search-field input::placeholder { color: var(--label-2); }
-  .search-field input::-webkit-search-cancel-button { display: none; }
-  .tabbar.searching .tabs { display: none; }
-  .tabbar.searching .search-field { display: flex; }
-
   [hidden] { display: none !important; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .glass, .tabs, .search-btn, .search-field { background: var(--glass-solid); }
+    .glass, .tabs, .list, .dist { background: var(--glass-solid); }
   }
   @media (prefers-reduced-transparency: reduce) {
-    .glass, .tabs, .search-btn, .search-field { background: var(--glass-solid); backdrop-filter: none; -webkit-backdrop-filter: none; }
+    .glass, .tabs, .list, .dist { background: var(--glass-solid); backdrop-filter: none; -webkit-backdrop-filter: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .skeleton { animation: none; }
+    .skeleton, .backdrop span { animation: none; }
   }
 </style>
 </head>
 <body>
-  <div class="brand" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="backdrop" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
 
   <div class="app">
     <div class="nav">
@@ -315,7 +311,7 @@
 
     <header>
       <h1>Saldo</h1>
-      <p class="updated"><span class="live-dot" id="live-dot" aria-hidden="true"></span><span id="updated" role="status">A carregar…</span></p>
+      <p class="glass updated"><span class="live-dot" id="live-dot" aria-hidden="true"></span><span id="updated" role="status">A carregar…</span></p>
     </header>
 
     <div class="notice" id="notice" role="alert"></div>
@@ -349,7 +345,7 @@
       </section>
     </main>
 
-    <p class="foot">Dados lidos da Google Sheet · atualização automática a cada minuto</p>
+    <p class="foot"><span class="glass">Dados lidos da Google Sheet · atualização automática a cada minuto</span></p>
   </div>
 
   <div class="edge" aria-hidden="true"></div>
@@ -368,12 +364,6 @@
         <span>Distribuição</span>
       </a>
     </nav>
-    <label class="glass search-field" for="search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-      <span class="sr-only">Procurar conta</span>
-      <input id="search" type="search" placeholder="Procurar conta" autocomplete="off" enterkeyhint="search">
-    </label>
-    <button class="glass glass-btn search-btn" id="search-btn" type="button" aria-label="Procurar conta" aria-expanded="false" aria-controls="search"></button>
   </div>
 
 <script>
@@ -637,7 +627,7 @@ function render(items) {
     const hidden = !revealed.has(i.conta);
     const tip = hidden ? '' : `${i.proprio ? 'Limites desta conta: ' : ''}atenção abaixo de ${euroCurto.format(i.aviso)} · baixo abaixo de ${euroCurto.format(i.perigo)}`;
     return `
-      <li class="row ${status}${hidden ? ' is-hidden' : ''}" style="--c:${color(idx)}" data-search="${escapeHTML(norm(i.conta))}">
+      <li class="row ${status}${hidden ? ' is-hidden' : ''}" style="--c:${color(idx)}">
         <span class="tile" aria-hidden="true">${escapeHTML(initialOf(i.conta))}</span>
         <span class="text">
           <span class="name" title="${escapeHTML(i.conta)}">${escapeHTML(i.conta)}</span>
@@ -649,8 +639,7 @@ function render(items) {
         </span>
         ${revealButton(i.conta, hidden, `de ${i.conta}`)}
       </li>`;
-  }).join('') + '<li class="empty" id="no-results" hidden>Nenhuma conta encontrada</li>';
-  applyFilter();
+  }).join('');
   markTab();
 }
 
@@ -720,43 +709,6 @@ document.addEventListener('click', e => {
   if (again && document.activeElement !== again) again.focus();
 });
 
-/* ───────── Pesquisa de contas ───────── */
-const SEARCH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>';
-const CLOSE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
-const searchInput = $('search');
-const searchBtn = $('search-btn');
-
-function applyFilter() {
-  const q = norm(searchInput.value || '');
-  let shown = 0;
-  for (const row of document.querySelectorAll('#cards .row')) {
-    const match = !q || (row.dataset.search || '').includes(q);
-    row.hidden = !match;
-    if (match) shown++;
-  }
-  const none = $('no-results');
-  if (none) none.hidden = shown > 0 || !lastItems;
-}
-
-function setSearching(on) {
-  $('tabbar').classList.toggle('searching', on);
-  searchBtn.setAttribute('aria-expanded', String(on));
-  searchBtn.setAttribute('aria-label', on ? 'Fechar pesquisa' : 'Procurar conta');
-  searchBtn.title = on ? 'Fechar pesquisa' : 'Procurar conta';
-  searchBtn.innerHTML = on ? CLOSE_ICON : SEARCH_ICON;
-  if (on) {
-    document.getElementById('contas').scrollIntoView({ block: 'start' });
-    searchInput.focus();
-  } else {
-    searchInput.value = '';
-    applyFilter();
-    searchBtn.focus();
-  }
-}
-searchBtn.addEventListener('click', () => setSearching(!$('tabbar').classList.contains('searching')));
-searchInput.addEventListener('input', applyFilter);
-searchInput.addEventListener('keydown', e => { if (e.key === 'Escape') setSearching(false); });
-
 /* ───────── Separadores: saltar para a secção e marcar a atual ───────── */
 const tabs = [...document.querySelectorAll('.tab')];
 function markTab() {
@@ -787,7 +739,7 @@ if (!THEMES.includes(themePref)) themePref = 'auto';
 function applyTheme() {
   const dark = themePref === 'dark' || (themePref === 'auto' && !systemLight.matches);
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-  document.querySelector('meta[name="theme-color"]').content = dark ? '#000000' : '#f2f2f7';
+  document.querySelector('meta[name="theme-color"]').content = dark ? '#0b1022' : '#eef1f8';
   const b = $('theme');
   const label = `Tema: ${THEME_LABEL[themePref]}`;
   b.setAttribute('aria-label', label);
@@ -808,7 +760,6 @@ document.addEventListener('visibilitychange', () => {
   else { loadData(); schedule(); }
 });
 
-searchBtn.innerHTML = SEARCH_ICON;
 applyTheme();
 markTab();
 loadData();
