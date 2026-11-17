@@ -358,8 +358,7 @@
   .card-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
   .card h2 {
     display: flex;
@@ -413,7 +412,27 @@
   .spark circle { fill: currentColor; }
 
   /* Valores escondidos */
-  .masked .amount, .masked .legend .val, .masked .trend .delta, .masked .limits { letter-spacing: 0.08em; }
+  /* Saldo escondido (por omissão em todos os cartões) */
+  .is-hidden .amount, .is-hidden .trend .delta, .is-hidden .limits { letter-spacing: 0.08em; }
+
+  /* Botão de revelar, no canto superior direito de cada cartão */
+  .reveal {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    display: inline-grid; place-items: center;
+    border-radius: 999px;
+    color: var(--text);
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .reveal svg { width: 16px; height: 16px; }
+  .reveal:hover { background: var(--hover); }
+  .reveal:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+  .hero { position: relative; }
+  .hero > .reveal { position: absolute; top: 14px; right: 14px; }
+  .card-head .pill { margin-left: auto; }
 
   /* ───────── Aviso de erro ───────── */
   .notice {
@@ -474,18 +493,15 @@
       <h1>Saldo Positivo</h1>
       <div class="glass toolbar">
         <span class="when"><span class="live-dot" id="live-dot" aria-hidden="true"></span><span id="updated" role="status">A carregar…</span></span>
-        <button class="btn icon" id="privacy" type="button" aria-pressed="false" aria-label="Esconder valores" title="Esconder valores">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
         <button class="btn icon" id="theme" type="button" aria-label="Tema: automático" title="Tema: automático"></button>
-        <button class="btn" id="refresh" type="button">Atualizar</button>
       </div>
     </header>
 
     <div class="glass notice" id="notice" role="alert"></div>
 
     <main id="main">
-      <section class="glass hero" aria-labelledby="total-label">
+      <section class="glass hero is-hidden" id="hero" aria-labelledby="total-label">
+        <button class="reveal" id="reveal-total" type="button" data-reveal="total" aria-pressed="false" hidden></button>
         <div class="hero-main">
           <span class="label" id="total-label">Total disponível</span>
           <div class="amount" id="total-amount" aria-live="polite"><span class="skeleton">0 000,00 €</span></div>
@@ -543,12 +559,24 @@ const store = {
 let lastSuccess = null;
 let lastItems = null;
 let timer = null;
-let masked = store.get('sp-privado', false);
+let lastHist = [];
+// Saldos revelados nesta visita; ao recarregar a página voltam todos a estar escondidos
+const revealed = new Set();
+const TOTAL_KEY = 'total';
 
 /* ───────── Formatação ───────── */
 const minus = s => s.replace('-', '−'); // sinal de menos tipográfico
-const euro = v => masked ? MASK : minus(euroFmt.format(v));
-const euroDelta = v => masked ? MASK : (v > 0 ? '+' : '') + minus(euroFmt.format(v));
+const euro = (v, hidden) => hidden ? MASK : minus(euroFmt.format(v));
+const euroDelta = (v, hidden) => hidden ? MASK : (v > 0 ? '+' : '') + minus(euroFmt.format(v));
+
+const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.9 10.9 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+// Olho fechado = escondido; olho aberto = visível
+const revealLabel = (hidden, nome) => `${hidden ? 'Mostrar' : 'Esconder'} saldo ${nome}`;
+function revealButton(key, hidden, nome) {
+  const label = revealLabel(hidden, nome);
+  return `<button class="reveal" type="button" data-reveal="${escapeHTML(key)}" aria-pressed="${!hidden}" aria-label="${escapeHTML(label)}" title="${escapeHTML(label)}">${hidden ? EYE_OFF : EYE}</button>`;
+}
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -663,11 +691,11 @@ function sparkline(values, label) {
     <circle cx="${lx}" cy="${ly}" r="2.5" vector-effect="non-scaling-stroke"/></svg>`;
 }
 
-function trendText(values) {
+function trendText(values, hidden) {
   if (values.length < 2) return 'O histórico começa hoje: volta amanhã para ver a evolução.';
   const delta = values[values.length - 1] - values[0];
   const dias = values.length - 1;
-  return `<span class="delta">${euroDelta(delta)}</span> nos últimos ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
+  return `<span class="delta">${euroDelta(delta, hidden)}</span> nos últimos ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
 }
 
 /* ───────── Desenho ───────── */
@@ -677,22 +705,30 @@ function pill(status, title) {
 
 function render(items) {
   const total = items.reduce((sum, i) => sum + i.saldo, 0);
-  const hist = saveHistory(items, total);
+  const hist = lastHist;
+  const totalHidden = !revealed.has(TOTAL_KEY);
   const totalStatus = getStatusClass(total);
   const atencao = items.filter(i => getStatusClass(i.saldo, i.aviso, i.perigo)).length;
   const positivos = items.reduce((s, i) => s + Math.max(i.saldo, 0), 0);
   const color = idx => `var(--s${(idx % SERIES) + 1})`;
 
-  document.body.classList.toggle('masked', masked);
   $('dist').hidden = false;
 
   // Total
-  $('total-amount').textContent = euro(total);
+  $('hero').classList.toggle('is-hidden', totalHidden);
+  const rt = $('reveal-total');
+  const rtLabel = revealLabel(totalHidden, 'total');
+  rt.hidden = false;
+  rt.setAttribute('aria-pressed', String(!totalHidden));
+  rt.setAttribute('aria-label', rtLabel);
+  rt.title = rtLabel;
+  rt.innerHTML = totalHidden ? EYE_OFF : EYE;
+  $('total-amount').textContent = euro(total, totalHidden);
   $('total-meta').innerHTML = `
     ${pill(totalStatus)}
     <span>${items.length} ${items.length === 1 ? 'conta' : 'contas'}${atencao ? ` · ${atencao} a precisar de atenção` : ''}</span>`;
   const totalSerie = series(hist);
-  $('total-trend').innerHTML = `${masked ? '' : sparkline(totalSerie, 'Evolução do total')}<span>${trendText(totalSerie)}</span>`;
+  $('total-trend').innerHTML = `${totalHidden ? '' : sparkline(totalSerie, 'Evolução do total')}<span>${trendText(totalSerie, totalHidden)}</span>`;
 
   // Distribuição
   const shares = items.map(i => positivos > 0 ? Math.max(i.saldo, 0) / positivos : 0);
@@ -714,18 +750,20 @@ function render(items) {
     const status = getStatusClass(i.saldo, i.aviso, i.perigo);
     const share = shares[idx];
     const serie = series(hist, i.conta);
-    const limites = masked
+    const hidden = !revealed.has(i.conta);
+    const limites = hidden
       ? `alerta ${MASK}`
       : `alerta abaixo de ${euroCurto.format(i.aviso)}`;
     return `
-      <article class="glass card ${status}" style="--c:${color(idx)}">
+      <article class="glass card ${status}${hidden ? ' is-hidden' : ''}" style="--c:${color(idx)}">
         <div class="card-head">
           <h2 title="${escapeHTML(i.conta)}"><span class="sw" aria-hidden="true"></span><span class="name">${escapeHTML(i.conta)}</span></h2>
-          ${pill(status, masked ? '' : `Atenção abaixo de ${euroCurto.format(i.aviso)} · baixo abaixo de ${euroCurto.format(i.perigo)}`)}
+          ${pill(status, hidden ? '' : `Atenção abaixo de ${euroCurto.format(i.aviso)} · baixo abaixo de ${euroCurto.format(i.perigo)}`)}
+          ${revealButton(i.conta, hidden, `de ${i.conta}`)}
         </div>
         <div class="amount-row">
-          <div class="amount">${euro(i.saldo)}</div>
-          ${masked ? '' : sparkline(serie, `Evolução de ${i.conta}`)}
+          <div class="amount">${euro(i.saldo, hidden)}</div>
+          ${hidden ? '' : sparkline(serie, `Evolução de ${i.conta}`)}
         </div>
         <div class="meta">
           <span>${pct.format(share)} do total</span>
@@ -748,16 +786,14 @@ function setUpdated(ok) {
 }
 
 async function loadData() {
-  const btn = $('refresh');
   const notice = $('notice');
-  btn.disabled = true;
-  btn.textContent = 'A atualizar…';
   try {
     const res = await fetch(CSV_URL, { cache: 'no-store' });
     if (!res.ok) throw new Error('Não foi possível aceder à folha. Confirma que está partilhada como «Qualquer pessoa com o link pode ver».');
     const items = parseSheet(await res.text());
     if (!items.length) throw new Error('A folha não tem contas com saldo válido.');
     lastItems = items;
+    lastHist = saveHistory(items, items.reduce((sum, i) => sum + i.saldo, 0));
     render(items);
     lastSuccess = new Date();
     setUpdated(true);
@@ -772,11 +808,9 @@ async function loadData() {
       $('total-trend').innerHTML = '';
       $('dist').hidden = true;
       $('cards').innerHTML = '';
+      $('reveal-total').hidden = true;
     }
     setUpdated(false);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Atualizar';
   }
 }
 
@@ -785,22 +819,16 @@ function schedule() {
   timer = setInterval(loadData, REFRESH_MS);
 }
 
-/* ───────── Privacidade ───────── */
-function applyPrivacy() {
-  const b = $('privacy');
-  b.setAttribute('aria-pressed', String(masked));
-  const label = masked ? 'Mostrar valores' : 'Esconder valores';
-  b.setAttribute('aria-label', label);
-  b.title = label;
-  b.innerHTML = masked
-    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.9 10.9 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
-  if (lastItems) render(lastItems);
-}
-$('privacy').addEventListener('click', () => {
-  masked = !masked;
-  store.set('sp-privado', masked);
-  applyPrivacy();
+/* ───────── Revelar saldo por cartão ───────── */
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-reveal]');
+  if (!btn || !lastItems) return;
+  const key = btn.dataset.reveal;
+  if (revealed.has(key)) revealed.delete(key); else revealed.add(key);
+  render(lastItems);
+  // O cartão é redesenhado: devolver o foco ao mesmo botão
+  const again = [...document.querySelectorAll('[data-reveal]')].find(b => b.dataset.reveal === key);
+  if (again && document.activeElement !== again) again.focus();
 });
 
 /* ───────── Tema: automático → claro → escuro ───────── */
@@ -833,8 +861,6 @@ $('theme').addEventListener('click', () => {
 systemLight.addEventListener('change', () => { if (themePref === 'auto') applyTheme(); });
 
 /* ───────── Arranque ───────── */
-$('refresh').addEventListener('click', () => { loadData(); schedule(); });
-
 // Não gastar pedidos com o separador escondido; atualizar ao voltar
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) clearInterval(timer);
@@ -842,7 +868,6 @@ document.addEventListener('visibilitychange', () => {
 });
 
 applyTheme();
-applyPrivacy();
 loadData();
 schedule();
 </script>
