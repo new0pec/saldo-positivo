@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0b1022">
+<meta name="theme-color" content="#000000">
 <title>Saldo Positivo</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
@@ -22,518 +22,358 @@
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
   })();
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* ───────── Tokens ───────── */
+  /* ───────── Tokens (cores do sistema iOS, versão de contraste reforçado) ───────── */
   :root, [data-theme="dark"] {
     color-scheme: dark;
-    --ink: #0b1022;
-    --field-1: #12a37a;
-    --field-2: #2f4fd1;
-    --field-3: #c2416f;
-    --field-4: #d98a1f;
-    --field-opacity: 0.85;
-
-    --glass: rgba(14, 20, 44, 0.42);
-    --glass-strong: rgba(14, 20, 44, 0.55);
-    --glass-solid: rgba(14, 20, 44, 0.90);
+    --bg: #000000;
+    --card: #1c1c1e;
+    --label: #ffffff;
+    --label-2: rgba(235, 235, 245, 0.74);
+    --sep: rgba(84, 84, 88, 0.65);
+    --fill: rgba(120, 120, 128, 0.26);
+    --green: #30d158;
+    --green-tab: #30d158;
+    --orange: #ffb340;
+    --red: #ff6961;
+    --glass: rgba(44, 44, 48, 0.58);
+    --glass-strong: rgba(30, 30, 33, 0.74);
+    --glass-solid: rgba(28, 28, 30, 0.96);
     --glass-border: rgba(255, 255, 255, 0.16);
-    --glass-highlight: rgba(255, 255, 255, 0.22);
-    --glass-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.45);
-    --hover: rgba(255, 255, 255, 0.16);
-
-    --text: #ffffff;
-    --text-2: rgba(255, 255, 255, 0.80);
-    --track: rgba(255, 255, 255, 0.14);
-
-    --ok: #5ee8b5;
-    --warn: #ffc65c;
-    --bad: #ff8a8a;
-    --bad-text: #ffb8b8;
-    --pill-bg: rgba(8, 12, 28, 0.55);
-    --pill-border: rgba(255, 255, 255, 0.10);
-    --notice-bg: rgba(36, 8, 20, 0.70);
-    --notice-border: rgba(255, 138, 138, 0.45);
-    --notice-strong: #ffa3a3;
-    --skeleton-a: rgba(255, 255, 255, 0.08);
-    --skeleton-b: rgba(255, 255, 255, 0.18);
-
-    /* Série categórica: uma cor por conta */
-    --s1: #5ee8b5;
-    --s2: #8fb2ff;
-    --s3: #ffc65c;
-    --s4: #ff9cc2;
-    --s5: #c3adff;
-    --s6: #6fe0f0;
+    --glass-hi: rgba(255, 255, 255, 0.26);
+    --shadow: rgba(0, 0, 0, 0.45);
+    --tile-text: #000000;
+    --brand-1: #12a37a;
+    --brand-2: #2f4fd1;
+    --brand-3: #c2416f;
+    --brand-opacity: 0.55;
+    --s1: #5ee8b5; --s2: #8fb2ff; --s3: #ffc65c; --s4: #ff9cc2; --s5: #c3adff; --s6: #6fe0f0;
   }
-
   [data-theme="light"] {
     color-scheme: light;
-    --ink: #eef1f8;
-    --field-1: #6fdcb4;
-    --field-2: #93abff;
-    --field-3: #ff9ec0;
-    --field-4: #ffc978;
-    --field-opacity: 0.9;
-
-    --glass: rgba(255, 255, 255, 0.55);
-    --glass-strong: rgba(255, 255, 255, 0.70);
-    --glass-solid: rgba(255, 255, 255, 0.94);
-    --glass-border: rgba(255, 255, 255, 0.75);
-    --glass-highlight: rgba(255, 255, 255, 0.95);
-    --glass-shadow: 0 10px 40px -14px rgba(20, 30, 70, 0.28);
-    --hover: rgba(255, 255, 255, 0.9);
-
-    --text: #0b1022;
-    --text-2: rgba(11, 16, 34, 0.74);
-    --track: rgba(11, 16, 34, 0.12);
-
-    --ok: #04694a;
-    --warn: #7f4c00;
-    --bad: #a81c2a;
-    --bad-text: #a81c2a;
-    --pill-bg: rgba(255, 255, 255, 0.78);
-    --pill-border: rgba(11, 16, 34, 0.10);
-    --notice-bg: rgba(255, 238, 240, 0.88);
-    --notice-border: rgba(168, 28, 42, 0.35);
-    --notice-strong: #a81c2a;
-    --skeleton-a: rgba(11, 16, 34, 0.06);
-    --skeleton-b: rgba(11, 16, 34, 0.14);
-
-    --s1: #079068;
-    --s2: #2f5bd8;
-    --s3: #b86e00;
-    --s4: #c43a76;
-    --s5: #7650d6;
-    --s6: #0b8aa0;
+    --bg: #f2f2f7;
+    --card: #ffffff;
+    --label: #000000;
+    --label-2: rgba(60, 60, 67, 0.8);
+    --sep: rgba(60, 60, 67, 0.29);
+    --fill: rgba(120, 120, 128, 0.14);
+    --green: #1e7b34; /* verde iOS escurecido para AA sobre branco */
+    --green-tab: #17662a;
+    --orange: #c93400;
+    --red: #d70015;
+    --glass: rgba(255, 255, 255, 0.62);
+    --glass-strong: rgba(255, 255, 255, 0.86);
+    --glass-solid: rgba(255, 255, 255, 0.97);
+    --glass-border: rgba(255, 255, 255, 0.9);
+    --glass-hi: rgba(255, 255, 255, 1);
+    --shadow: rgba(30, 30, 60, 0.16);
+    --tile-text: #ffffff;
+    --brand-1: #6fdcb4;
+    --brand-2: #93abff;
+    --brand-3: #ff9ec0;
+    --brand-opacity: 0.6;
+    --s1: #057a58; --s2: #2f5bd8; --s3: #9a5c00; --s4: #c43a76; --s5: #7650d6; --s6: #08788b;
   }
-
   :root {
-    --blur: 22px;
-    --radius: 22px;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
+    --font-round: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --side: 16px;
+    --tab-h: 62px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { background: var(--ink); }
-
+  html { background: var(--bg); scroll-behavior: smooth; scroll-padding-top: 12px; }
   body {
-    font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    color: var(--text);
+    font-family: var(--font);
+    color: var(--label);
+    background: var(--bg);
     min-height: 100vh;
     min-height: 100dvh;
-    padding: clamp(1.25rem, 4vw, 3rem) clamp(1rem, 4vw, 2rem) 2rem;
-    /* Ecrã principal do iPhone: respeitar a zona do relógio e do entalhe */
-    padding-top: max(clamp(1.25rem, 4vw, 3rem), calc(env(safe-area-inset-top) + 0.75rem));
-    padding-left: max(clamp(1rem, 4vw, 2rem), env(safe-area-inset-left));
-    padding-right: max(clamp(1rem, 4vw, 2rem), env(safe-area-inset-right));
-    padding-bottom: max(2rem, env(safe-area-inset-bottom));
-    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     font-variant-numeric: tabular-nums;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    overflow-x: hidden;
+  }
+  button { font: inherit; color: inherit; }
+
+  /* Cor da marca por trás do título (desfocada, rola com a página) */
+  .brand {
+    position: absolute; top: 0; left: 0; right: 0; height: 460px;
+    overflow: hidden; z-index: -1; pointer-events: none;
+    -webkit-mask-image: linear-gradient(#000 55%, transparent);
+    mask-image: linear-gradient(#000 55%, transparent);
+  }
+  .brand span { position: absolute; border-radius: 50%; filter: blur(80px); opacity: var(--brand-opacity); }
+  .brand span:nth-child(1) { width: 380px; height: 380px; left: calc(50% - 360px); top: -170px; background: var(--brand-1); }
+  .brand span:nth-child(2) { width: 360px; height: 360px; left: calc(50% + 0px); top: -170px; background: var(--brand-2); }
+  .brand span:nth-child(3) { width: 300px; height: 300px; left: calc(50% - 160px); top: 80px; background: var(--brand-3); }
+
+  .app {
+    max-width: 720px;
+    margin: 0 auto;
+    padding:
+      calc(env(safe-area-inset-top) + 8px)
+      max(var(--side), env(safe-area-inset-right))
+      calc(var(--tab-h) + env(safe-area-inset-bottom) + 48px)
+      max(var(--side), env(safe-area-inset-left));
   }
 
-  /* ───────── Campos de cor (o que o vidro desfoca) ───────── */
-  .backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    overflow: hidden;
-    background: var(--ink);
-  }
-  .backdrop span {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(70px);
-    opacity: var(--field-opacity);
-    animation: drift 28s ease-in-out infinite alternate;
-  }
-  .backdrop span:nth-child(1) { width: 55vmax; height: 55vmax; left: -15vmax; top: -18vmax; background: var(--field-1); }
-  .backdrop span:nth-child(2) { width: 50vmax; height: 50vmax; right: -18vmax; top: -10vmax; background: var(--field-2); animation-duration: 34s; }
-  .backdrop span:nth-child(3) { width: 45vmax; height: 45vmax; left: 20vmax; bottom: -25vmax; background: var(--field-3); animation-duration: 40s; }
-  .backdrop span:nth-child(4) { width: 28vmax; height: 28vmax; right: 5vmax; bottom: 5vmax; background: var(--field-4); opacity: 0.6; animation-duration: 31s; }
-  @keyframes drift {
-    to { transform: translate3d(4vmax, 3vmax, 0) scale(1.08); }
-  }
-
-  .container { max-width: 980px; margin: 0 auto; }
-
-  /* ───────── Componente: vidro ───────── */
+  /* ───────── Vidro (Liquid Glass) ───────── */
   .glass {
     background: var(--glass);
-    -webkit-backdrop-filter: blur(var(--blur)) saturate(150%);
-    backdrop-filter: blur(var(--blur)) saturate(150%);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius);
-    box-shadow: inset 0 1px 0 var(--glass-highlight), var(--glass-shadow);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 0.5px solid var(--glass-border);
+    box-shadow: inset 0 1px 0 var(--glass-hi), inset 0 -1px 0 rgba(255, 255, 255, 0.04), 0 8px 24px var(--shadow);
   }
 
-  /* ───────── Cabeçalho ───────── */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.25rem;
+  /* ───────── Barra de navegação ───────── */
+  .nav { display: flex; justify-content: flex-end; gap: 10px; height: 44px; margin-bottom: 6px; }
+  .glass-btn {
+    width: 44px; height: 44px; border-radius: 22px;
+    display: grid; place-items: center; cursor: pointer;
   }
-  h1 {
-    font-size: clamp(1.35rem, 3vw, 1.6rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-  }
-  /* Todo o texto secundário assenta em vidro, nunca direto sobre a cor */
-  .toolbar {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.875rem;
-    color: var(--text-2);
-    padding: 0.3rem;
-    border-radius: 999px;
-  }
-  .toolbar .when {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0 0.4rem 0 0.6rem;
-    white-space: nowrap;
-  }
-  .live-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--ok);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 20%, transparent);
-    flex-shrink: 0;
-  }
-  .live-dot.stale { background: var(--warn); box-shadow: 0 0 0 4px color-mix(in srgb, var(--warn) 20%, transparent); }
+  .glass-btn svg { width: 20px; height: 20px; }
+  .glass-btn:active { transform: scale(0.94); }
+  .glass-btn:focus-visible, .reveal:focus-visible, .tab:focus-visible { outline: 2px solid var(--label); outline-offset: 2px; }
 
-  .btn {
-    font: inherit;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text);
-    height: 34px;
-    min-width: 34px;
-    padding: 0 0.9rem;
-    border-radius: 999px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-    background: var(--glass-strong);
-    border: 1px solid var(--glass-border);
-    transition: background 0.2s;
-  }
-  .btn.icon { padding: 0; width: 34px; }
-  .btn svg { width: 18px; height: 18px; }
-  .btn:hover { background: var(--hover); }
-  .btn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
-  .btn[disabled] { cursor: progress; }
-  .btn[aria-pressed="true"] { background: var(--text); color: var(--ink); border-color: transparent; }
+  h1 { font-size: 34px; font-weight: 700; letter-spacing: 0.01em; line-height: 1.2; }
+  .updated { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 13px; color: var(--label-2); }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .live-dot.stale { background: var(--orange); }
 
-  /* ───────── Componente: total ───────── */
+  /* ───────── Total ───────── */
   .hero {
-    padding: clamp(1.4rem, 4vw, 2.2rem);
-    margin-bottom: 1rem;
+    margin-top: 14px;
+    border-radius: 34px;
+    padding: 18px 18px 18px 20px;
     display: grid;
-    gap: 1.5rem 2.5rem;
+    gap: 6px;
   }
-  @media (min-width: 760px) {
-    .hero { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; }
-  }
-  .hero-main { display: grid; gap: 0.35rem; min-width: 0; }
-  .label {
-    font-size: 0.8125rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-2);
-  }
+  .hero-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .label { font-size: 15px; font-weight: 600; color: var(--label-2); }
   .hero .amount {
-    font-size: clamp(2.5rem, 7vw, 4rem);
-    font-weight: 800;
-    letter-spacing: -0.035em;
-    line-height: 1.05;
+    font-family: var(--font-round);
+    font-size: clamp(38px, 11vw, 48px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    word-break: break-word;
   }
-  .hero-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem 0.75rem;
-    flex-wrap: wrap;
-    margin-top: 0.5rem;
-    color: var(--text-2);
-    font-size: 0.9375rem;
-  }
-  .trend {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-    color: var(--text-2);
-    font-size: 0.875rem;
-  }
-  .trend { flex-wrap: wrap; }
-  .trend .spark { width: 168px; height: 36px; flex-shrink: 0; }
+  .status-line { display: flex; flex-wrap: wrap; align-items: center; gap: 0 5px; font-size: 15px; color: var(--label-2); }
+  .st { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; color: var(--green); }
+  .st::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .st.warning { color: var(--orange); }
+  .st.danger { color: var(--red); }
+  .trend { display: grid; gap: 8px; margin-top: 8px; font-size: 13px; color: var(--label-2); }
+  .trend .spark { width: 100%; height: 56px; }
+  .trend .up-txt { color: var(--green); font-weight: 600; }
+  .trend .down-txt { color: var(--red); font-weight: 600; }
 
-  /* Distribuição: barra empilhada + legenda */
-  .dist { display: grid; gap: 0.9rem; min-width: 0; }
-  .stack {
-    display: flex;
-    gap: 3px;
-    height: 12px;
-    border-radius: 999px;
-    overflow: hidden;
-    background: var(--track);
+  /* Botão de revelar (olho) */
+  .reveal {
+    width: 32px; height: 32px; border-radius: 16px; flex-shrink: 0;
+    display: grid; place-items: center;
+    border: 0; background: transparent; color: var(--label-2); cursor: pointer;
   }
-  .stack i { display: block; height: 100%; min-width: 3px; transition: flex-grow 0.6s ease; }
-  .legend {
-    list-style: none;
+  .reveal:hover { background: var(--fill); }
+  .reveal svg { width: 18px; height: 18px; }
+  .is-hidden .amount, .is-hidden .value { letter-spacing: 0.12em; }
+
+  /* ───────── Secções ───────── */
+  section { scroll-margin-top: 12px; }
+  h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin: 26px 4px 10px; }
+
+  /* Lista agrupada */
+  .list { list-style: none; background: var(--card); border-radius: 26px; overflow: hidden; }
+  .row {
+    --c: var(--s1);
+    position: relative;
     display: grid;
-    gap: 0.45rem;
-    font-size: 0.875rem;
-  }
-  .legend li {
-    display: grid;
-    grid-template-columns: 10px minmax(0, 1fr) auto;
+    grid-template-columns: 36px minmax(0, 1fr) auto auto;
     align-items: center;
-    gap: 0.6rem;
+    gap: 12px;
+    min-height: 72px;
+    padding: 12px 8px 12px 16px;
   }
+  .row + .row::before {
+    content: ''; position: absolute; top: 0; left: 64px; right: 0;
+    border-top: 0.5px solid var(--sep);
+  }
+  .tile {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: grid; place-items: center;
+    background: var(--c); color: var(--tile-text);
+    font-family: var(--font-round); font-size: 17px; font-weight: 700;
+  }
+  .row .text { min-width: 0; display: grid; gap: 2px; }
+  .row .name { font-size: 17px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .sub { display: flex; flex-wrap: wrap; align-items: center; gap: 0 5px; font-size: 15px; color: var(--label-2); }
+  .row .right { display: grid; justify-items: end; gap: 4px; }
+  .row .value { font-family: var(--font-round); font-size: 17px; font-weight: 600; white-space: nowrap; }
+  .row .spark { width: 70px; height: 18px; }
+  .empty { padding: 22px 16px; text-align: center; color: var(--label-2); font-size: 15px; }
+
+  /* Barras de variação diária */
+  .spark .base { stroke: var(--sep); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .spark rect.up { fill: var(--green); }
+  .spark rect.down { fill: var(--red); }
+  .spark rect.flat { fill: var(--label-2); }
+
+  /* Distribuição */
+  .dist { background: var(--card); border-radius: 26px; padding: 16px; display: grid; gap: 12px; }
+  .stack { display: flex; gap: 3px; height: 10px; border-radius: 6px; overflow: hidden; background: var(--fill); }
+  .stack i { display: block; height: 100%; min-width: 3px; }
+  .legend { list-style: none; display: grid; gap: 10px; }
+  .legend li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 15px; }
   .legend .sw { width: 10px; height: 10px; border-radius: 3px; }
   .legend .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .legend .val { color: var(--text-2); }
+  .legend .val { color: var(--label-2); }
 
-  /* ───────── Componente: pílula de estado (texto + cor, nunca só cor) ───────── */
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.2rem 0.65rem 0.2rem 0.55rem;
-    border-radius: 999px;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    background: var(--pill-bg);
-    border: 1px solid var(--pill-border);
-    color: var(--ok);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .pill::before {
-    content: '';
-    width: 7px; height: 7px; border-radius: 50%;
-    background: currentColor;
-  }
-  .pill.warning { color: var(--warn); }
-  .pill.danger { color: var(--bad); }
-
-  /* ───────── Componente: cartão de conta ───────── */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1rem;
-  }
-  .card {
-    --c: var(--s1);
-    padding: 1.15rem 1.25rem 1.2rem;
-    display: grid;
-    gap: 0.55rem;
-    position: relative;
-    overflow: hidden;
-    min-width: 0;
-  }
-  .card > * { min-width: 0; }
-  /* Brilho de estado no canto, por trás do conteúdo */
-  .card::after {
-    content: '';
-    position: absolute;
-    width: 140px; height: 140px;
-    right: -50px; top: -60px;
-    border-radius: 50%;
-    background: var(--ok);
-    opacity: 0.16;
-    filter: blur(30px);
-    pointer-events: none;
-  }
-  .card.warning::after { background: var(--warn); }
-  .card.danger::after { background: var(--bad); opacity: 0.2; }
-  .card-head {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .card h2 {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-width: 0;
-    font-size: 1rem;
-    font-weight: 600;
-  }
-  .card h2 .sw { width: 10px; height: 10px; border-radius: 3px; background: var(--c); flex-shrink: 0; }
-  .card h2 .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .card .amount-row {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-  .card .amount {
-    font-size: 1.875rem;
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    line-height: 1.15;
-    white-space: nowrap;
-  }
-  .card .spark { width: 98px; height: 30px; flex-shrink: 0; }
-  .meta {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-    font-size: 0.8125rem;
-    color: var(--text-2);
-  }
-  .meta span:last-child { text-align: right; }
-  .bar {
-    height: 4px;
-    border-radius: 999px;
-    background: var(--track);
-    overflow: hidden;
-  }
-  .bar i {
-    display: block;
-    height: 100%;
-    border-radius: inherit;
-    background: var(--c);
-    transition: width 0.6s ease;
-  }
-
-  /* Mini-gráfico */
-  /* Barras de variação diária */
-  .spark.days { overflow: visible; }
-  .spark .base { stroke: var(--track); stroke-width: 1; vector-effect: non-scaling-stroke; }
-  .spark rect.up { fill: var(--ok); }
-  .spark rect.down { fill: var(--bad); }
-  .spark rect.flat { fill: var(--text-2); opacity: 0.6; }
-  .spark rect:hover { opacity: 0.75; }
-  .trend .up-txt { color: var(--ok); font-weight: 600; }
-  .trend .down-txt { color: var(--bad-text); font-weight: 600; }
-
-  /* Valores escondidos */
-  /* Saldo escondido (por omissão em todos os cartões) */
-  .is-hidden .amount, .is-hidden .trend .delta, .is-hidden .limits { letter-spacing: 0.08em; }
-
-  /* Botão de revelar, no canto superior direito de cada cartão */
-  .reveal {
-    flex-shrink: 0;
-    width: 30px; height: 30px;
-    display: inline-grid; place-items: center;
-    border-radius: 999px;
-    color: var(--text);
-    background: var(--pill-bg);
-    border: 1px solid var(--pill-border);
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .reveal svg { width: 16px; height: 16px; }
-  .reveal:hover { background: var(--hover); }
-  .reveal:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
-  .hero { position: relative; }
-  .hero > .reveal { position: absolute; top: 14px; right: 14px; }
-  .card-head .pill { margin-left: auto; }
-
-  /* ───────── Aviso de erro ───────── */
-  .notice {
-    display: none;
-    padding: 0.9rem 1.1rem;
-    margin-bottom: 1rem;
-    border-color: var(--notice-border);
-    background: var(--notice-bg);
-    font-size: 0.9375rem;
-  }
-  .notice strong { color: var(--notice-strong); }
+  /* Aviso de erro */
+  .notice { display: none; margin-top: 14px; padding: 14px 16px; border-radius: 22px; background: var(--card); font-size: 15px; }
+  .notice strong { color: var(--red); }
   .notice.show { display: block; }
 
-  /* ───────── Carregamento ───────── */
+  .foot { margin-top: 22px; text-align: center; font-size: 13px; color: var(--label-2); }
+
+  /* Carregamento */
   .skeleton {
-    color: transparent !important;
-    background: linear-gradient(90deg, var(--skeleton-a), var(--skeleton-b), var(--skeleton-a));
-    background-size: 200% 100%;
-    animation: shimmer 1.4s linear infinite;
-    border-radius: 8px;
+    color: transparent !important; border-radius: 8px;
+    background: linear-gradient(90deg, var(--fill), rgba(127, 127, 127, 0.28), var(--fill));
+    background-size: 200% 100%; animation: shimmer 1.4s linear infinite;
   }
   @keyframes shimmer { to { background-position: -200% 0; } }
 
-  footer { margin-top: 1.5rem; text-align: center; }
-  footer p {
-    display: inline-block;
-    padding: 0.4rem 0.9rem;
-    border-radius: 999px;
-    font-size: 0.8125rem;
-    color: var(--text-2);
+  /* ───────── Barra de separadores flutuante ───────── */
+  .edge {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 140px; pointer-events: none; z-index: 5;
+    background: linear-gradient(to bottom, transparent, var(--bg) 88%);
+    opacity: 0.9;
   }
+  .tabbar {
+    position: fixed; z-index: 10;
+    left: 0; right: 0;
+    bottom: calc(env(safe-area-inset-bottom) + 12px);
+    max-width: 720px; margin: 0 auto;
+    padding: 0 max(var(--side), env(safe-area-inset-right)) 0 max(var(--side), env(safe-area-inset-left));
+    display: flex; gap: 12px; align-items: center;
+    pointer-events: none;
+  }
+  .tabbar > * { pointer-events: auto; }
+  .tabs {
+    display: flex; padding: 4px; border-radius: 31px; height: var(--tab-h);
+    background: var(--glass-strong);
+  }
+  .tab {
+    width: 92px; display: grid; place-items: center; align-content: center; gap: 2px;
+    border-radius: 27px; text-decoration: none; color: var(--label);
+    font-size: 10px; font-weight: 500; letter-spacing: 0.01em;
+  }
+  .tab svg { width: 24px; height: 24px; }
+  .tab[aria-current="true"] { background: var(--fill); color: var(--green-tab); font-weight: 600; }
+  .search-btn { width: var(--tab-h); height: var(--tab-h); border-radius: 31px; margin-left: auto; flex-shrink: 0; background: var(--glass-strong); }
+  .search-btn svg { width: 22px; height: 22px; }
+  .search-field {
+    display: none; flex: 1; min-width: 0; height: var(--tab-h); border-radius: 31px; padding: 0 18px;
+    align-items: center; gap: 10px; background: var(--glass-strong);
+  }
+  .search-field svg { width: 20px; height: 20px; color: var(--label-2); flex-shrink: 0; }
+  .search-field input {
+    flex: 1; min-width: 0; width: 100%; border: 0; outline: 0; background: transparent;
+    font: inherit; font-size: 17px; color: var(--label);
+  }
+  .search-field input::placeholder { color: var(--label-2); }
+  .search-field input::-webkit-search-cancel-button { display: none; }
+  .tabbar.searching .tabs { display: none; }
+  .tabbar.searching .search-field { display: flex; }
 
   [hidden] { display: none !important; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-  .sr-only {
-    position: absolute; width: 1px; height: 1px;
-    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
-  }
-
-  /* Sem blur, ou quem prefere menos transparência: vidro sólido */
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .glass { background: var(--glass-solid); }
+    .glass, .tabs, .search-btn, .search-field { background: var(--glass-solid); }
   }
   @media (prefers-reduced-transparency: reduce) {
-    .glass { background: var(--glass-solid); backdrop-filter: none; -webkit-backdrop-filter: none; }
+    .glass, .tabs, .search-btn, .search-field { background: var(--glass-solid); backdrop-filter: none; -webkit-backdrop-filter: none; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .backdrop span, .skeleton { animation: none; }
-    .bar i, .stack i { transition: none; }
+    html { scroll-behavior: auto; }
+    .skeleton { animation: none; }
   }
 </style>
 </head>
 <body>
-  <div class="backdrop" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  <div class="brand" aria-hidden="true"><span></span><span></span><span></span></div>
 
-  <div class="container">
+  <div class="app">
+    <div class="nav">
+      <button class="glass glass-btn" id="reveal-all" type="button" aria-pressed="false" aria-label="Mostrar todos os saldos" title="Mostrar todos os saldos" hidden></button>
+      <button class="glass glass-btn" id="theme" type="button" aria-label="Tema: automático" title="Tema: automático"></button>
+    </div>
+
     <header>
-      <h1>Saldo Positivo</h1>
-      <div class="glass toolbar">
-        <span class="when"><span class="live-dot" id="live-dot" aria-hidden="true"></span><span id="updated" role="status">A carregar…</span></span>
-        <button class="btn icon" id="reveal-all" type="button" aria-pressed="false" aria-label="Mostrar todos os saldos" title="Mostrar todos os saldos" hidden></button>
-        <button class="btn icon" id="theme" type="button" aria-label="Tema: automático" title="Tema: automático"></button>
-      </div>
+      <h1>Saldo</h1>
+      <p class="updated"><span class="live-dot" id="live-dot" aria-hidden="true"></span><span id="updated" role="status">A carregar…</span></p>
     </header>
 
-    <div class="glass notice" id="notice" role="alert"></div>
+    <div class="notice" id="notice" role="alert"></div>
 
-    <main id="main">
-      <section class="glass hero is-hidden" id="hero" aria-labelledby="total-label">
-        <button class="reveal" id="reveal-total" type="button" data-reveal="total" aria-pressed="false" hidden></button>
-        <div class="hero-main">
+    <main>
+      <section id="total" class="glass hero is-hidden" aria-labelledby="total-label">
+        <div class="hero-head">
           <span class="label" id="total-label">Total disponível</span>
-          <div class="amount" id="total-amount" aria-live="polite"><span class="skeleton">0 000,00 €</span></div>
-          <div class="hero-meta" id="total-meta"></div>
-          <div class="trend" id="total-trend"></div>
+          <button class="reveal" id="reveal-total" type="button" data-reveal="total" aria-pressed="false" hidden></button>
         </div>
-        <div class="dist" id="dist" aria-labelledby="dist-label">
-          <span class="label" id="dist-label">Distribuição</span>
+        <div class="amount" id="total-amount" aria-live="polite"><span class="skeleton">00 000,00 €</span></div>
+        <div class="status-line" id="total-meta"></div>
+        <div class="trend" id="total-trend"></div>
+      </section>
+
+      <section id="contas" aria-labelledby="contas-title">
+        <h2 id="contas-title">Contas</h2>
+        <ul class="list" id="cards">
+          <li class="row"><span class="tile skeleton">·</span><span class="text"><span class="name skeleton">Conta principal</span></span></li>
+          <li class="row"><span class="tile skeleton">·</span><span class="text"><span class="name skeleton">Conta</span></span></li>
+          <li class="row"><span class="tile skeleton">·</span><span class="text"><span class="name skeleton">Conta poupança</span></span></li>
+        </ul>
+      </section>
+
+      <section id="distribuicao" aria-labelledby="dist-title">
+        <h2 id="dist-title">Distribuição</h2>
+        <div class="dist" id="dist">
           <div class="stack"><i class="skeleton" style="flex-grow:1"></i></div>
           <ul class="legend" id="legend"></ul>
         </div>
       </section>
-
-      <h2 class="sr-only">Contas</h2>
-      <div class="grid" id="cards">
-        <div class="glass card"><div class="card-head"><h2><span class="skeleton">Conta</span></h2></div><div class="amount"><span class="skeleton">000,00 €</span></div></div>
-        <div class="glass card"><div class="card-head"><h2><span class="skeleton">Conta</span></h2></div><div class="amount"><span class="skeleton">000,00 €</span></div></div>
-        <div class="glass card"><div class="card-head"><h2><span class="skeleton">Conta</span></h2></div><div class="amount"><span class="skeleton">000,00 €</span></div></div>
-      </div>
     </main>
 
-    <footer><p class="glass">Dados lidos da Google Sheet · atualização automática a cada minuto</p></footer>
+    <p class="foot">Dados lidos da Google Sheet · atualização automática a cada minuto</p>
+  </div>
+
+  <div class="edge" aria-hidden="true"></div>
+  <div class="tabbar" id="tabbar">
+    <nav class="glass tabs" aria-label="Secções">
+      <a class="tab" href="#total" data-section="total" aria-current="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18"/><path d="M16 15h2"/><path d="M6 6l9-3 1 3"/></svg>
+        <span>Total</span>
+      </a>
+      <a class="tab" href="#contas" data-section="contas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1" fill="currentColor"/><circle cx="3.5" cy="12" r="1" fill="currentColor"/><circle cx="3.5" cy="18" r="1" fill="currentColor"/></svg>
+        <span>Contas</span>
+      </a>
+      <a class="tab" href="#distribuicao" data-section="distribuicao">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12A9 9 0 1 1 12 3v9Z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15Z"/></svg>
+        <span>Distribuição</span>
+      </a>
+    </nav>
+    <label class="glass search-field" for="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <span class="sr-only">Procurar conta</span>
+      <input id="search" type="search" placeholder="Procurar conta" autocomplete="off" enterkeyhint="search">
+    </label>
+    <button class="glass glass-btn search-btn" id="search-btn" type="button" aria-label="Procurar conta" aria-expanded="false" aria-controls="search"></button>
   </div>
 
 <script>
@@ -730,9 +570,9 @@ function trendText(points, hidden) {
 }
 
 /* ───────── Desenho ───────── */
-function pill(status, title) {
-  return `<span class="pill ${status}"${title ? ` title="${escapeHTML(title)}"` : ''}>${ESTADOS[status].label}</span>`;
-}
+const STATUS_LABEL = { '': 'Saudável', warning: 'Atenção', danger: 'Baixo' };
+const statusTag = (status, title) => `<span class="st ${status}"${title ? ` title="${escapeHTML(title)}"` : ''}>${STATUS_LABEL[status]}</span>`;
+const initialOf = nome => (nome.match(/[\p{L}\p{N}]/u) || ['?'])[0].toUpperCase();
 
 // Chaves de tudo o que pode ser revelado: o total e cada conta
 const allKeys = items => [TOTAL_KEY, ...items.map(i => i.conta)];
@@ -762,7 +602,7 @@ function render(items) {
   $('dist').hidden = false;
 
   // Total
-  $('hero').classList.toggle('is-hidden', totalHidden);
+  $('total').classList.toggle('is-hidden', totalHidden);
   const rt = $('reveal-total');
   const rtLabel = revealLabel(totalHidden, 'total');
   rt.hidden = false;
@@ -771,9 +611,7 @@ function render(items) {
   rt.title = rtLabel;
   rt.innerHTML = totalHidden ? EYE_OFF : EYE;
   $('total-amount').textContent = euro(total, totalHidden);
-  $('total-meta').innerHTML = `
-    ${pill(totalStatus)}
-    <span>${items.length} ${items.length === 1 ? 'conta' : 'contas'}${atencao ? ` · ${atencao} a precisar de atenção` : ''}</span>`;
+  $('total-meta').innerHTML = `${statusTag(totalStatus)}<span>· ${items.length} ${items.length === 1 ? 'conta' : 'contas'}${atencao ? ` · ${atencao} a precisar de atenção` : ''}</span>`;
   const totalSerie = series(hist);
   $('total-trend').innerHTML = `${dailyBars(dailyChanges(totalSerie), 'o total', totalHidden)}<span>${trendText(totalSerie, totalHidden)}</span>`;
 
@@ -792,33 +630,28 @@ function render(items) {
         <span class="val">${pct.format(s)}</span>
       </li>`).join('');
 
-  // Contas
+  // Contas (lista agrupada)
   $('cards').innerHTML = items.map((i, idx) => {
     const status = getStatusClass(i.saldo, i.aviso, i.perigo);
-    const share = shares[idx];
     const serie = series(hist, i.conta);
     const hidden = !revealed.has(i.conta);
-    const limites = hidden
-      ? `alerta ${MASK}`
-      : `alerta abaixo de ${euroCurto.format(i.aviso)}`;
+    const tip = hidden ? '' : `${i.proprio ? 'Limites desta conta: ' : ''}atenção abaixo de ${euroCurto.format(i.aviso)} · baixo abaixo de ${euroCurto.format(i.perigo)}`;
     return `
-      <article class="glass card ${status}${hidden ? ' is-hidden' : ''}" style="--c:${color(idx)}">
-        <div class="card-head">
-          <h2 title="${escapeHTML(i.conta)}"><span class="sw" aria-hidden="true"></span><span class="name">${escapeHTML(i.conta)}</span></h2>
-          ${pill(status, hidden ? '' : `Atenção abaixo de ${euroCurto.format(i.aviso)} · baixo abaixo de ${euroCurto.format(i.perigo)}`)}
-          ${revealButton(i.conta, hidden, `de ${i.conta}`)}
-        </div>
-        <div class="amount-row">
-          <div class="amount">${euro(i.saldo, hidden)}</div>
+      <li class="row ${status}${hidden ? ' is-hidden' : ''}" style="--c:${color(idx)}" data-search="${escapeHTML(norm(i.conta))}">
+        <span class="tile" aria-hidden="true">${escapeHTML(initialOf(i.conta))}</span>
+        <span class="text">
+          <span class="name" title="${escapeHTML(i.conta)}">${escapeHTML(i.conta)}</span>
+          <span class="sub">${statusTag(status, tip)}<span>· ${pct.format(shares[idx])}</span></span>
+        </span>
+        <span class="right">
+          <span class="value">${euro(i.saldo, hidden)}</span>
           ${dailyBars(dailyChanges(serie), i.conta, hidden)}
-        </div>
-        <div class="meta">
-          <span>${pct.format(share)} do total</span>
-          <span class="limits">${i.proprio ? limites : ''}</span>
-        </div>
-        <div class="bar" aria-hidden="true"><i style="width:${(share * 100).toFixed(1)}%"></i></div>
-      </article>`;
-  }).join('');
+        </span>
+        ${revealButton(i.conta, hidden, `de ${i.conta}`)}
+      </li>`;
+  }).join('') + '<li class="empty" id="no-results" hidden>Nenhuma conta encontrada</li>';
+  applyFilter();
+  markTab();
 }
 
 function setUpdated(ok) {
@@ -882,10 +715,62 @@ document.addEventListener('click', e => {
   const key = btn.dataset.reveal;
   if (revealed.has(key)) revealed.delete(key); else revealed.add(key);
   render(lastItems);
-  // O cartão é redesenhado: devolver o foco ao mesmo botão
+  // A linha é redesenhada: devolver o foco ao mesmo botão
   const again = [...document.querySelectorAll('[data-reveal]')].find(b => b.dataset.reveal === key);
   if (again && document.activeElement !== again) again.focus();
 });
+
+/* ───────── Pesquisa de contas ───────── */
+const SEARCH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>';
+const CLOSE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+const searchInput = $('search');
+const searchBtn = $('search-btn');
+
+function applyFilter() {
+  const q = norm(searchInput.value || '');
+  let shown = 0;
+  for (const row of document.querySelectorAll('#cards .row')) {
+    const match = !q || (row.dataset.search || '').includes(q);
+    row.hidden = !match;
+    if (match) shown++;
+  }
+  const none = $('no-results');
+  if (none) none.hidden = shown > 0 || !lastItems;
+}
+
+function setSearching(on) {
+  $('tabbar').classList.toggle('searching', on);
+  searchBtn.setAttribute('aria-expanded', String(on));
+  searchBtn.setAttribute('aria-label', on ? 'Fechar pesquisa' : 'Procurar conta');
+  searchBtn.title = on ? 'Fechar pesquisa' : 'Procurar conta';
+  searchBtn.innerHTML = on ? CLOSE_ICON : SEARCH_ICON;
+  if (on) {
+    document.getElementById('contas').scrollIntoView({ block: 'start' });
+    searchInput.focus();
+  } else {
+    searchInput.value = '';
+    applyFilter();
+    searchBtn.focus();
+  }
+}
+searchBtn.addEventListener('click', () => setSearching(!$('tabbar').classList.contains('searching')));
+searchInput.addEventListener('input', applyFilter);
+searchInput.addEventListener('keydown', e => { if (e.key === 'Escape') setSearching(false); });
+
+/* ───────── Separadores: saltar para a secção e marcar a atual ───────── */
+const tabs = [...document.querySelectorAll('.tab')];
+function markTab() {
+  const line = window.innerHeight * 0.4;
+  let current = 'total';
+  for (const t of tabs) {
+    const sec = document.getElementById(t.dataset.section);
+    if (sec && sec.getBoundingClientRect().top < line) current = t.dataset.section;
+  }
+  if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) current = tabs[tabs.length - 1].dataset.section;
+  for (const t of tabs) t.setAttribute('aria-current', String(t.dataset.section === current));
+}
+addEventListener('scroll', markTab, { passive: true });
+addEventListener('resize', markTab);
 
 /* ───────── Tema: automático → claro → escuro ───────── */
 const THEMES = ['auto', 'light', 'dark'];
@@ -902,7 +787,7 @@ if (!THEMES.includes(themePref)) themePref = 'auto';
 function applyTheme() {
   const dark = themePref === 'dark' || (themePref === 'auto' && !systemLight.matches);
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-  document.querySelector('meta[name="theme-color"]').content = dark ? '#0b1022' : '#eef1f8';
+  document.querySelector('meta[name="theme-color"]').content = dark ? '#000000' : '#f2f2f7';
   const b = $('theme');
   const label = `Tema: ${THEME_LABEL[themePref]}`;
   b.setAttribute('aria-label', label);
@@ -923,7 +808,9 @@ document.addEventListener('visibilitychange', () => {
   else { loadData(); schedule(); }
 });
 
+searchBtn.innerHTML = SEARCH_ICON;
 applyTheme();
+markTab();
 loadData();
 schedule();
 </script>
