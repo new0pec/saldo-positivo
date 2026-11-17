@@ -51,6 +51,7 @@
     --ok: #5ee8b5;
     --warn: #ffc65c;
     --bad: #ff8a8a;
+    --bad-text: #ffb8b8;
     --pill-bg: rgba(8, 12, 28, 0.55);
     --pill-border: rgba(255, 255, 255, 0.10);
     --notice-bg: rgba(36, 8, 20, 0.70);
@@ -92,6 +93,7 @@
     --ok: #04694a;
     --warn: #7f4c00;
     --bad: #a81c2a;
+    --bad-text: #a81c2a;
     --pill-bg: rgba(255, 255, 255, 0.78);
     --pill-border: rgba(11, 16, 34, 0.10);
     --notice-bg: rgba(255, 238, 240, 0.88);
@@ -273,7 +275,8 @@
     color: var(--text-2);
     font-size: 0.875rem;
   }
-  .trend .spark { width: 120px; height: 32px; color: var(--text); flex-shrink: 0; }
+  .trend { flex-wrap: wrap; }
+  .trend .spark { width: 168px; height: 36px; flex-shrink: 0; }
 
   /* Distribuição: barra empilhada + legenda */
   .dist { display: grid; gap: 0.9rem; min-width: 0; }
@@ -383,7 +386,7 @@
     line-height: 1.15;
     white-space: nowrap;
   }
-  .card .spark { width: 84px; height: 28px; color: var(--c); flex-shrink: 0; }
+  .card .spark { width: 98px; height: 30px; flex-shrink: 0; }
   .meta {
     display: flex;
     justify-content: space-between;
@@ -407,9 +410,15 @@
   }
 
   /* Mini-gráfico */
-  .spark path.line { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-  .spark path.area { fill: currentColor; opacity: 0.14; stroke: none; }
-  .spark circle { fill: currentColor; }
+  /* Barras de variação diária */
+  .spark.days { overflow: visible; }
+  .spark .base { stroke: var(--track); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .spark rect.up { fill: var(--ok); }
+  .spark rect.down { fill: var(--bad); }
+  .spark rect.flat { fill: var(--text-2); opacity: 0.6; }
+  .spark rect:hover { opacity: 0.75; }
+  .trend .up-txt { color: var(--ok); font-weight: 600; }
+  .trend .down-txt { color: var(--bad-text); font-weight: 600; }
 
   /* Valores escondidos */
   /* Saldo escondido (por omissão em todos os cartões) */
@@ -537,6 +546,7 @@ const LIMITE_PERIGO = 100;
 const HIST_KEY = 'sp-historico';
 const HIST_DIAS = 90;
 const SPARK_DIAS = 30;
+const DIAS_GRAFICO = 14; // barras de variação diária mostradas
 const SERIES = 6;
 const MASK = '•••••';
 
@@ -671,32 +681,52 @@ function saveHistory(items, total) {
 
 function series(hist, conta) {
   return hist.slice(-SPARK_DIAS)
-    .map(p => conta == null ? p.t : p.c[conta])
-    .filter(v => typeof v === 'number');
+    .map(p => ({ d: p.d, v: conta == null ? p.t : p.c[conta] }))
+    .filter(p => typeof p.v === 'number');
 }
 
-function sparkline(values, label) {
-  if (values.length < 2) return '';
-  const w = 100, h = 30, pad = 3;
-  const min = Math.min(...values), max = Math.max(...values);
-  const span = max - min || 1;
-  const pts = values.map((v, i) => [
-    (i / (values.length - 1)) * w,
-    h - pad - ((v - min) / span) * (h - pad * 2),
-  ]);
-  const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
-  const area = `${line} L${w} ${h} L0 ${h} Z`;
-  const [lx, ly] = pts[pts.length - 1];
-  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="${escapeHTML(label)}">
-    <path class="area" d="${area}"/><path class="line" d="${line}"/>
-    <circle cx="${lx}" cy="${ly}" r="2.5" vector-effect="non-scaling-stroke"/></svg>`;
+// Variação de cada dia face ao dia anterior registado
+function dailyChanges(points, max = DIAS_GRAFICO) {
+  const out = [];
+  for (let i = 1; i < points.length; i++) out.push({ d: points[i].d, delta: points[i].v - points[i - 1].v });
+  return out.slice(-max);
 }
 
-function trendText(values, hidden) {
-  if (values.length < 2) return 'O histórico começa hoje: volta amanhã para ver a evolução.';
-  const delta = values[values.length - 1] - values[0];
-  const dias = values.length - 1;
-  return `<span class="delta">${euroDelta(delta, hidden)}</span> nos últimos ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
+const diaFmt = new Intl.DateTimeFormat('pt-PT', { weekday: 'short', day: '2-digit', month: '2-digit' });
+const diaLabel = d => diaFmt.format(new Date(d + 'T12:00:00')).replace('.', '');
+const EPS = 0.005; // abaixo de meio cêntimo conta como "sem alteração"
+const dirOf = delta => delta > EPS ? 'up' : delta < -EPS ? 'down' : 'flat';
+const DIR_TXT = { up: 'subiu', down: 'desceu', flat: 'sem alteração' };
+
+// Barras por dia: para cima (verde) se subiu, para baixo (vermelho) se desceu
+function dailyBars(changes, nome, hidden) {
+  if (!changes.length) return '';
+  const n = changes.length, slot = 10, bw = 6, h = 32, mid = h / 2, room = mid - 2;
+  const maxAbs = Math.max(...changes.map(c => Math.abs(c.delta)), EPS);
+  const counts = { up: 0, down: 0, flat: 0 };
+  const bars = changes.map((c, i) => {
+    const dir = dirOf(c.delta);
+    counts[dir]++;
+    const x = i * slot + (slot - bw) / 2;
+    // raiz quadrada: um dia excecional não esmaga os restantes
+    const len = dir === 'flat' ? 2 : Math.max(3, Math.sqrt(Math.abs(c.delta) / maxAbs) * room);
+    const y = dir === 'down' ? mid : mid - len;
+    const tip = `${diaLabel(c.d)}: ${hidden ? DIR_TXT[dir] : (dir === 'flat' ? 'sem alteração' : euroDelta(c.delta))}`;
+    return `<rect class="${dir}" x="${x}" y="${dir === 'flat' ? mid - 1 : y}" width="${bw}" height="${len}" rx="1.5"><title>${escapeHTML(tip)}</title></rect>`;
+  }).join('');
+  const label = `Evolução diária de ${nome}: ${counts.up} ${counts.up === 1 ? 'dia' : 'dias'} a subir, ${counts.down} a descer, ${counts.flat} sem alteração`;
+  return `<svg class="spark days" viewBox="0 0 ${n * slot} ${h}" preserveAspectRatio="none" role="img" aria-label="${escapeHTML(label)}">
+    <line class="base" x1="0" x2="${n * slot}" y1="${mid}" y2="${mid}"/>${bars}</svg>`;
+}
+
+function trendText(points, hidden) {
+  if (points.length < 2) return 'O histórico começa hoje: volta amanhã para ver a evolução por dia.';
+  const changes = dailyChanges(points);
+  const delta = points[points.length - 1].v - points[points.length - 1 - changes.length].v;
+  const up = changes.filter(c => dirOf(c.delta) === 'up').length;
+  const down = changes.filter(c => dirOf(c.delta) === 'down').length;
+  const dias = changes.length;
+  return `<span class="delta">${euroDelta(delta, hidden)}</span> em ${dias} ${dias === 1 ? 'dia' : 'dias'} · <span class="up-txt">${up} a subir</span>, <span class="down-txt">${down} a descer</span>`;
 }
 
 /* ───────── Desenho ───────── */
@@ -745,7 +775,7 @@ function render(items) {
     ${pill(totalStatus)}
     <span>${items.length} ${items.length === 1 ? 'conta' : 'contas'}${atencao ? ` · ${atencao} a precisar de atenção` : ''}</span>`;
   const totalSerie = series(hist);
-  $('total-trend').innerHTML = `${totalHidden ? '' : sparkline(totalSerie, 'Evolução do total')}<span>${trendText(totalSerie, totalHidden)}</span>`;
+  $('total-trend').innerHTML = `${dailyBars(dailyChanges(totalSerie), 'o total', totalHidden)}<span>${trendText(totalSerie, totalHidden)}</span>`;
 
   // Distribuição
   const shares = items.map(i => positivos > 0 ? Math.max(i.saldo, 0) / positivos : 0);
@@ -780,7 +810,7 @@ function render(items) {
         </div>
         <div class="amount-row">
           <div class="amount">${euro(i.saldo, hidden)}</div>
-          ${hidden ? '' : sparkline(serie, `Evolução de ${i.conta}`)}
+          ${dailyBars(dailyChanges(serie), i.conta, hidden)}
         </div>
         <div class="meta">
           <span>${pct.format(share)} do total</span>
