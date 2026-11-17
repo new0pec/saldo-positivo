@@ -2,9 +2,17 @@
 <html lang="pt-PT">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0b1022">
 <title>Saldo Positivo</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Saldo">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script>
   // Aplica o tema antes de pintar, para não piscar
   (function () {
@@ -115,6 +123,11 @@
     min-height: 100vh;
     min-height: 100dvh;
     padding: clamp(1.25rem, 4vw, 3rem) clamp(1rem, 4vw, 2rem) 2rem;
+    /* Ecrã principal do iPhone: respeitar a zona do relógio e do entalhe */
+    padding-top: max(clamp(1.25rem, 4vw, 3rem), calc(env(safe-area-inset-top) + 0.75rem));
+    padding-left: max(clamp(1rem, 4vw, 2rem), env(safe-area-inset-left));
+    padding-right: max(clamp(1rem, 4vw, 2rem), env(safe-area-inset-right));
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     font-variant-numeric: tabular-nums;
