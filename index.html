@@ -493,6 +493,7 @@
       <h1>Saldo Positivo</h1>
       <div class="glass toolbar">
         <span class="when"><span class="live-dot" id="live-dot" aria-hidden="true"></span><span id="updated" role="status">A carregar…</span></span>
+        <button class="btn icon" id="reveal-all" type="button" aria-pressed="false" aria-label="Mostrar todos os saldos" title="Mostrar todos os saldos" hidden></button>
         <button class="btn icon" id="theme" type="button" aria-label="Tema: automático" title="Tema: automático"></button>
       </div>
     </header>
@@ -703,7 +704,23 @@ function pill(status, title) {
   return `<span class="pill ${status}"${title ? ` title="${escapeHTML(title)}"` : ''}>${ESTADOS[status].label}</span>`;
 }
 
+// Chaves de tudo o que pode ser revelado: o total e cada conta
+const allKeys = items => [TOTAL_KEY, ...items.map(i => i.conta)];
+const allRevealed = items => allKeys(items).every(k => revealed.has(k));
+
+function updateRevealAll(items) {
+  const b = $('reveal-all');
+  const all = allRevealed(items);
+  const label = all ? 'Esconder todos os saldos' : 'Mostrar todos os saldos';
+  b.hidden = false;
+  b.setAttribute('aria-pressed', String(all));
+  b.setAttribute('aria-label', label);
+  b.title = label;
+  b.innerHTML = all ? EYE : EYE_OFF;
+}
+
 function render(items) {
+  updateRevealAll(items);
   const total = items.reduce((sum, i) => sum + i.saldo, 0);
   const hist = lastHist;
   const totalHidden = !revealed.has(TOTAL_KEY);
@@ -809,6 +826,7 @@ async function loadData() {
       $('dist').hidden = true;
       $('cards').innerHTML = '';
       $('reveal-total').hidden = true;
+      $('reveal-all').hidden = true;
     }
     setUpdated(false);
   }
@@ -818,6 +836,14 @@ function schedule() {
   clearInterval(timer);
   timer = setInterval(loadData, REFRESH_MS);
 }
+
+/* ───────── Revelar todos (barra de cima) ───────── */
+$('reveal-all').addEventListener('click', () => {
+  if (!lastItems) return;
+  if (allRevealed(lastItems)) revealed.clear();
+  else allKeys(lastItems).forEach(k => revealed.add(k));
+  render(lastItems);
+});
 
 /* ───────── Revelar saldo por cartão ───────── */
 document.addEventListener('click', e => {
