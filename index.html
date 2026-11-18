@@ -88,6 +88,8 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* Sem "puxar para atualizar": recarregar sem querer voltava a esconder os saldos */
+  html, body { overscroll-behavior-y: none; }
   html { background: var(--bg); scroll-behavior: smooth; scroll-padding-top: 12px; }
   body {
     font-family: var(--font);
@@ -139,7 +141,9 @@
   .glass-btn {
     width: 44px; height: 44px; border-radius: 22px;
     display: grid; place-items: center; cursor: pointer;
+    transition: transform 150ms ease, background-color 200ms ease;
   }
+  .glass-btn:hover { background: var(--glass-strong); }
   .glass-btn svg { width: 20px; height: 20px; }
   .glass-btn:active { transform: scale(0.94); }
   .glass-btn:focus-visible, .reveal:focus-visible, .tab:focus-visible { outline: 2px solid var(--label); outline-offset: 2px; }
@@ -185,10 +189,15 @@
 
   /* Botão de revelar (olho) */
   .reveal {
+    position: relative;
     width: 32px; height: 32px; border-radius: 16px; flex-shrink: 0;
     display: grid; place-items: center;
     border: 0; background: transparent; color: var(--label-2); cursor: pointer;
+    transition: background-color 200ms ease, color 200ms ease;
   }
+  /* Área de toque de 44 × 44 (mínimo recomendado no iPhone) sem mudar o desenho */
+  .reveal::before { content: ''; position: absolute; inset: -6px; border-radius: 50%; }
+  .reveal:hover { color: var(--label); }
   .reveal:hover { background: var(--fill); }
   .reveal svg { width: 18px; height: 18px; }
   .is-hidden .amount, .is-hidden .value { letter-spacing: 0.12em; }
@@ -231,6 +240,20 @@
   .spark rect.up { fill: var(--green); }
   .spark rect.down { fill: var(--red); }
   .spark rect.flat { fill: var(--label-2); }
+  .spark.days { cursor: pointer; touch-action: manipulation; }
+  .spark rect { transition: opacity 150ms ease; }
+  .spark.has-active rect:not(.active) { opacity: 0.35; }
+  /* Dica de cada dia (toque no telemóvel, passar o rato no computador) */
+  .bar-tip {
+    position: fixed; z-index: 30; pointer-events: none;
+    padding: 6px 10px; border-radius: 12px;
+    background: var(--glass-solid); color: var(--label);
+    border: 0.5px solid var(--glass-border); box-shadow: 0 6px 18px var(--shadow);
+    font-size: 13px; font-weight: 600; white-space: nowrap;
+    opacity: 0; transform: translateY(4px);
+    transition: opacity 150ms ease, transform 150ms ease;
+  }
+  .bar-tip.show { opacity: 1; transform: none; }
 
   /* Distribuição */
   .dist { background: var(--card); border-radius: 26px; padding: 16px; display: grid; gap: 12px; -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); border: 0.5px solid var(--glass-border); }
@@ -282,7 +305,9 @@
     width: 92px; display: grid; place-items: center; align-content: center; gap: 2px;
     border-radius: 27px; text-decoration: none; color: var(--label);
     font-size: 10px; font-weight: 500; letter-spacing: 0.01em;
+    cursor: pointer; transition: background-color 200ms ease, color 200ms ease;
   }
+  .tab:not([aria-current="true"]):hover { background: var(--fill); }
   .tab svg { width: 24px; height: 24px; }
   .tab[aria-current="true"] { background: var(--fill); color: var(--green-tab); font-weight: 600; }
   [hidden] { display: none !important; }
@@ -297,6 +322,7 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .skeleton, .backdrop span { animation: none; }
+    *, *::before { transition: none !important; }
   }
 </style>
 </head>
@@ -534,6 +560,7 @@ function dailyBars(changes, nome, hidden) {
   const n = changes.length, slot = 10, bw = 6, h = 32, mid = h / 2, room = mid - 2;
   const maxAbs = Math.max(...changes.map(c => Math.abs(c.delta)), EPS);
   const counts = { up: 0, down: 0, flat: 0 };
+  const rows = [];
   const bars = changes.map((c, i) => {
     const dir = dirOf(c.delta);
     counts[dir]++;
@@ -542,11 +569,14 @@ function dailyBars(changes, nome, hidden) {
     const len = dir === 'flat' ? 2 : Math.max(3, Math.sqrt(Math.abs(c.delta) / maxAbs) * room);
     const y = dir === 'down' ? mid : mid - len;
     const tip = `${diaLabel(c.d)}: ${hidden ? DIR_TXT[dir] : (dir === 'flat' ? 'sem alteração' : euroDelta(c.delta))}`;
-    return `<rect class="${dir}" x="${x}" y="${dir === 'flat' ? mid - 1 : y}" width="${bw}" height="${len}" rx="1.5"><title>${escapeHTML(tip)}</title></rect>`;
+    rows.push(`<tr><th scope="row">${escapeHTML(diaLabel(c.d))}</th><td>${escapeHTML(tip.slice(tip.indexOf(': ') + 2))}</td></tr>`);
+    return `<rect class="${dir}" x="${x}" y="${dir === 'flat' ? mid - 1 : y}" width="${bw}" height="${len}" rx="1.5" data-tip="${escapeHTML(tip)}"></rect>`;
   }).join('');
   const label = `Evolução diária de ${nome}: ${counts.up} ${counts.up === 1 ? 'dia' : 'dias'} a subir, ${counts.down} a descer, ${counts.flat} sem alteração`;
+  // A tabela escondida dá os valores dia a dia a leitores de ecrã e teclado
   return `<svg class="spark days" viewBox="0 0 ${n * slot} ${h}" preserveAspectRatio="none" role="img" aria-label="${escapeHTML(label)}">
-    <line class="base" x1="0" x2="${n * slot}" y1="${mid}" y2="${mid}"/>${bars}</svg>`;
+    <line class="base" x1="0" x2="${n * slot}" y1="${mid}" y2="${mid}"/>${bars}</svg>
+    <table class="sr-only"><caption>Variação diária de ${escapeHTML(nome)}</caption><tbody>${rows.join('')}</tbody></table>`;
 }
 
 function trendText(points, hidden) {
@@ -587,6 +617,7 @@ function updateRevealAll(items) {
 }
 
 function render(items) {
+  hideTip();
   updateRevealAll(items);
   const total = items.reduce((sum, i) => sum + i.saldo, 0);
   const hist = lastHist;
@@ -715,6 +746,61 @@ document.addEventListener('click', e => {
   const again = [...document.querySelectorAll('[data-reveal]')].find(b => b.dataset.reveal === key);
   if (again && document.activeElement !== again) again.focus();
 });
+
+/* ───────── Dica das barras diárias ───────── */
+const tip = document.createElement('div');
+tip.className = 'bar-tip';
+tip.setAttribute('aria-hidden', 'true');
+document.body.appendChild(tip);
+let tipTimer = null;
+let tipByHover = false;
+
+function hideTip() {
+  tip.classList.remove('show');
+  document.querySelectorAll('.spark.has-active').forEach(svg => {
+    svg.classList.remove('has-active');
+    svg.querySelectorAll('rect.active').forEach(r => r.classList.remove('active'));
+  });
+}
+
+// Escolhe a barra mais próxima do dedo/rato: as barras são finas demais para acertar
+function showTip(svg, clientX, autoHide) {
+  const bars = [...svg.querySelectorAll('rect[data-tip]')];
+  if (!bars.length) return;
+  let best = bars[0], dist = Infinity;
+  for (const b of bars) {
+    const r = b.getBoundingClientRect();
+    const d = Math.abs(r.left + r.width / 2 - clientX);
+    if (d < dist) { dist = d; best = b; }
+  }
+  hideTip();
+  svg.classList.add('has-active');
+  best.classList.add('active');
+  tip.textContent = best.dataset.tip;
+  const br = best.getBoundingClientRect(), sr = svg.getBoundingClientRect();
+  tip.classList.add('show');
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  const left = Math.min(Math.max(8, br.left + br.width / 2 - tw / 2), window.innerWidth - tw - 8);
+  const top = sr.top - th - 8 > 8 ? sr.top - th - 8 : sr.bottom + 8;
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+  clearTimeout(tipTimer);
+  tipByHover = !autoHide;
+  if (autoHide) tipTimer = setTimeout(hideTip, 3000);
+}
+
+document.addEventListener('click', e => {
+  const svg = e.target.closest('.spark.days');
+  if (svg) showTip(svg, e.clientX, true);
+  else hideTip();
+});
+document.addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse') return;
+  const svg = e.target.closest('.spark.days');
+  if (svg) showTip(svg, e.clientX, false);
+  else if (tipByHover && tip.classList.contains('show')) hideTip();
+});
+addEventListener('scroll', hideTip, { passive: true });
 
 /* ───────── Separadores: saltar para a secção e marcar a atual ───────── */
 const tabs = [...document.querySelectorAll('.tab')];
