@@ -562,7 +562,14 @@ function trendText(points, hidden) {
 /* ───────── Desenho ───────── */
 const STATUS_LABEL = { '': 'Saudável', warning: 'Atenção', danger: 'Baixo' };
 const statusTag = (status, title) => `<span class="st ${status}"${title ? ` title="${escapeHTML(title)}"` : ''}>${STATUS_LABEL[status]}</span>`;
-const initialOf = nome => (nome.match(/[\p{L}\p{N}]/u) || ['?'])[0].toUpperCase();
+// Inicial do banco: ignora palavras genéricas ("Conta", "C.C.", "Cartão"…) e usa a primeira palavra que sobra
+const GENERICAS = new Set(['conta', 'contas', 'cc', 'cartao', 'cartoes', 'corrente', 'ordem', 'poupanca', 'prazo', 'deposito', 'ordenado', 'de', 'do', 'da', 'dos', 'das', 'e', 'a', 'o']);
+function initialOf(nome) {
+  const palavras = nome.split(/[\s./\\()\-–—,:;|]+/).filter(Boolean);
+  const util = palavras.find(w => w.length > 1 && !GENERICAS.has(norm(w)));
+  const fonte = util || nome;
+  return (fonte.match(/[\p{L}\p{N}]/u) || ['?'])[0].toUpperCase();
+}
 
 // Chaves de tudo o que pode ser revelado: o total e cada conta
 const allKeys = items => [TOTAL_KEY, ...items.map(i => i.conta)];
